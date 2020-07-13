@@ -3,6 +3,7 @@ const express = require('express');
 
 //1) para guardar usuario en la BD agregar el modelo
 const Usuario = require('../models/usuario');
+const { verificaToken } = require('../middlewares/autenticacion');
 
 const bcrypt = require('bcrypt');
 
@@ -11,7 +12,7 @@ const _ = require('underscore');
 
 const app = express();
 
-app.get('/usuario', function(req, res) {
+app.get('/usuario', verificaToken, (req, res) => {
   
     // para enviar para metros en la url desde que pagina quieres mostrar los registros
     let desde = req.query.desde || 0;
@@ -47,7 +48,7 @@ app.get('/usuario', function(req, res) {
    
 });
 
-app.post('/usuario', function(req, res) {
+app.post('/usuario',verificaToken,  (req, res) => {
 
     let body = req.body;
 
@@ -56,7 +57,7 @@ app.post('/usuario', function(req, res) {
     let usuario = new Usuario({
         nombre: body.nombre,
         email: body.email,
-        password:bcrypt.hashSync(body.password,10),
+        password: bcrypt.hashSync(body.password, 10),
         role: body.role
     });
 
@@ -78,7 +79,7 @@ app.post('/usuario', function(req, res) {
 
 });
 
-app.put('/usuario/:id', function(req, res) {
+app.put('/usuario/:id',verificaToken, function(req, res) {
 
     let id = req.params.id;
     // de la libreria underscore esta funcion pick que es para validar solo los campos q queremos q pueda actualizar el usuario
@@ -105,7 +106,7 @@ app.put('/usuario/:id', function(req, res) {
     
 });
 
-app.delete('/usuario/:id', function(req, res) {
+app.delete('/usuario/:id',verificaToken, function(req, res) {
    let id = req.params.id;
 
     Usuario.findByIdAndUpdate(id,{estado:false},{new:true}, (err,usuarioBorrado)=> {
